@@ -28,9 +28,7 @@ class MyApp extends App {
       <Container>
         <Head>
           <title>PDF viewing</title>
-          <link rel="shortcut icon" href="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/lg/57/pages_1f5d0.png">
-          </link>
-
+          
         </Head>
         {/* Wrap every page in Jss and Theme providers */}
         <JssProvider

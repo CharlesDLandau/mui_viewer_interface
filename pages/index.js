@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
 
 import Head from '../components/head';
 import Nav from '../components/nav';
@@ -21,8 +22,6 @@ require('dotenv').config()
 
 const styles = theme => ({
   root: {
-    textAlign: 'center',
-    paddingTop: theme.spacing.unit * 10,
   },
   row: {
     marginTop: 60
@@ -34,35 +33,58 @@ const styles = theme => ({
   },
   description: {
     marginTop: 25
+  },
+  pdfDoc: {
+    height: '95%'
   }
 });
 
 class Index extends React.Component {
-  state = {
-    numPages: null,
-    pageNumber: 1,
-    
-  }
-  render_target = () => {
-    process.env.TARGET_URL
+  constructor(props){
+    super(props)
+    this.state = {
+      numPages: null,
+      pageNumber: 1,
+      pages: [1]
+    }
   }
 
   onDocumentLoadSuccess = ({ numPages }) => {
+    console.log(numPages)
     this.setState({ numPages });
   }
 
+  loadPageBatch = (e) =>{
+    if (this.state.pageNumber <= this.state.numPages){
+        console.log("Loading next page...")
+        this.setState({pages:[
+          ...this.state.pages, this.state.pageNumber+1],
+        pageNumber: this.state.pageNumber + 1
+        })}
+  }
+  
+
   render() {
     const { classes } = this.props;
-
     return (
-      <div>
+      <div className={classes.root}>
         <Head title="Viewing PDFs..." />
-        <Document
+        <Grid container direction="column"
+        alignItems="center" justify="stretch">
+        <Grid item>
+        
+        <Document className={classes.pdfDoc}
           file={"/static/test.pdf"}
           onLoadSuccess={this.onDocumentLoadSuccess}
         >
-          <Page pageNumber={this.state.pageNumber} />
+          {this.state.pages.map(
+            (n, idx)=>{
+              return <Page
+              pageNumber={n}
+              renderAnnotationLayer={false}
+              onRenderSuccess={this.loadPageBatch}/>})}
         </Document>
+        </Grid></Grid>
       </div>
     );
   }
