@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import { useRouter } from 'next/router';
 
 import Head from '../components/head';
 import Nav from '../components/nav';
@@ -39,6 +40,24 @@ const styles = theme => ({
   }
 });
 
+const GetTarget = ({onDocumentLoadSuccess, loadPageBatch, classes, pages}) => {
+  const router = useRouter();
+
+  const target = router.query.target;
+  return <Document className={classes.pdfDoc}
+          file={target}
+          onLoadSuccess={onDocumentLoadSuccess}
+        >
+        {pages.map(
+          (n, idx)=>{
+          return <Page
+          pageNumber={n}
+          renderAnnotationLayer={false}
+          onRenderSuccess={loadPageBatch}/>})}
+  </Document>
+};
+
+
 class Index extends React.Component {
   constructor(props){
     super(props)
@@ -47,10 +66,12 @@ class Index extends React.Component {
       pageNumber: 1,
       pages: [1]
     }
+    console.log(props)
+    this.loadPageBatch = this.loadPageBatch.bind(this)
+    this.onDocumentLoadSuccess = this.onDocumentLoadSuccess.bind(this)
   }
 
   onDocumentLoadSuccess = ({ numPages }) => {
-    console.log(numPages)
     this.setState({ numPages });
   }
 
@@ -62,28 +83,19 @@ class Index extends React.Component {
         pageNumber: this.state.pageNumber + 1
         })}
   }
+
   
 
   render() {
     const { classes } = this.props;
-    return (
-      <div className={classes.root}>
+
+    return (<div className={classes.root}>
         <Head title="Viewing PDFs..." />
         <Grid container direction="column"
         alignItems="center" justify="stretch">
         <Grid item>
-        
-        <Document className={classes.pdfDoc}
-          file={"/static/test.pdf"}
-          onLoadSuccess={this.onDocumentLoadSuccess}
-        >
-          {this.state.pages.map(
-            (n, idx)=>{
-              return <Page
-              pageNumber={n}
-              renderAnnotationLayer={false}
-              onRenderSuccess={this.loadPageBatch}/>})}
-        </Document>
+        <GetTarget classes={classes} loadPageBatch={this.loadPageBatch}
+        onDocumentLoadSuccess={this.onDocumentLoadSuccess} pages={this.state.pages ? this.state.pages : []} />
         </Grid></Grid>
       </div>
     );
